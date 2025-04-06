@@ -1,0 +1,31 @@
+.button-wrapper2 {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espacio entre los botones */
+  }
+  
+  .button2 {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    flex-grow: 1; /* Los botones crecerán para ocupar el mismo espacio */
+    max-width: 200px; /* Si quieres limitar el ancho máximo */
+  }
+  
+  .back-button2 {
+    background-color: #ccc;
+    color: #000;
+  }
+  
+  .process-payment-button2 {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .button:hover {
+    opacity: 0.9;
+  }
+  

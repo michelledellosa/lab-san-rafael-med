@@ -1,0 +1,18 @@
+.btnRequest {
+    background-color: blue;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btnRequest:hover {
+    background-color: green;
+  }
+  
+  .active {
+    background-color: red;
+    color: white;
+  }
+  

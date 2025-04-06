@@ -1,0 +1,183 @@
+/* ====  */
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-Heavy.eot");
+  src: url("../../public/assets/fonts/CerebriSans-Heavy.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-Heavy.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-Heavy.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-Heavy.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-Bold.eot");
+  src: url("../../public/assets/fonts/CerebriSans-Bold.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-Bold.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-Bold.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-ExtraBold.eot");
+  src: url("../../public/assets/fonts/CerebriSans-ExtraBold.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-ExtraBold.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-ExtraBold.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-ExtraBold.ttf")
+      format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-Medium.eot");
+  src: url("../../public/assets/fonts/CerebriSans-Medium.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-Medium.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-Medium.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-Regular.eot");
+  src: url("../../public/assets/fonts/CerebriSans-Regular.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-Regular.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-Regular.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cerebri Sans";
+  src: url("../../public/assets/fonts/CerebriSans-SemiBold.eot");
+  src: url("../../public/assets/fonts/CerebriSans-SemiBold.eot?#iefix")
+      format("embedded-opentype"),
+    url("../../public/assets/fonts/CerebriSans-SemiBold.woff2") format("woff2"),
+    url("../../public/assets/fonts/CerebriSans-SemiBold.woff") format("woff"),
+    url("../../public/assets/fonts/CerebriSans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end; /* Alinea el botón a la derecha */
+}
+
+.button {
+  background-color: #5094fc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 8px; 
+}
+
+.button:hover {
+  background-color: rgb(16, 99, 16); /* Cambia a verde cuando haces hover */
+}
+
+.button.selected {
+  background-color: rgb(194, 17, 17); /* Cambia a rojo cuando está seleccionado */
+}
+
+.button.selected:hover {
+  background-color: darkred; /* Cambia a un tono más oscuro de rojo en hover cuando está seleccionado */
+}
+
+.blog-side-list {
+  margin-bottom: 20px; /* Espacio entre lista y total */
+}
+
+.total-wrapper {
+  margin-top: 20px; /* Espacio extra antes del total */
+}
+
+.total-usd, .total-bs {
+  display: block;
+  font-size: 0.85em; /* Reducir tamaño de fuente */
+  color: #555; /* Gris oscuro */
+  margin-top: 5px;
+}
+
+.total-usd {
+  font-weight: bold; /* Total en USD en negrita */
+}
+
+.total-bs {
+  font-weight: normal; /* Total en Bs en peso normal */
+}
+
+.button-center {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+}
+
+.create-order-button:disabled {
+  background-color: #ccc; /* Color de fondo cuando está desactivado */
+  cursor: not-allowed; /* Cambia el cursor para indicar que no está disponible */
+}
+
+.sidebar {
+  width: 300px; /* Ajusta el ancho según sea necesario */
+  padding: 20px; /* Agrega algo de relleno */
+  background-color: #f9f9f9; /* Color de fondo */
+  border: 1px solid #ddd; /* Borde para separar visualmente */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para darle profundidad */
+  position: sticky; /* Mantener el sidebar en su lugar */
+  top: 20px; /* Espacio desde la parte superior */
+  height: calc(100vh - 40px); /* Altura del sidebar */
+  overflow-y: auto; /* Scroll si el contenido excede la altura */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between; /* Espacio entre el contenido y el sidebar */
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%; /* El sidebar ocupa todo el ancho en pantallas pequeñas */
+    position: static; /* Desactivar el sticky */
+  }
+}
+
+.payment-option {
+  transition: all 0.3s ease;
+}
+
+.payment-option h4 {
+  margin-bottom: 15px;
+}
+
+.payment-option .form-group {
+  margin-bottom: 15px;
+}
+
+.payment-option input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
