@@ -1,3 +1,5 @@
+/* PayOrderMain.tsx */
+
 "use client";
 import "./PayOrderMain.css";
 import React, { useEffect, useState } from "react";
@@ -6,21 +8,23 @@ import Breadcrumb from "../common/breadcrumb/Breadcrumb";
 import { getExchangeRate } from "@/services/exchangeService";
 
 const PayOrderMain = ({
-  selectedExams: initialSelectedExams = [], // Si no se reciben exámenes seleccionados, por defecto será un arreglo vacío
+  selectedExams: initialSelectedExams = [],
 }: {
-  selectedExams?: any[]; // Prop opcional
+  selectedExams?: any[];
 }) => {
   const router = useRouter();
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [selectedExams, setSelectedExams] =
-    useState<any[]>(initialSelectedExams); // Lista de exámenes seleccionados
+    useState<any[]>(initialSelectedExams);
   const [paymentDetails, setPaymentDetails] = useState({
     referenceNumber: "",
     paymentImage: null,
-    amount: "",
+    amountPagoMovil: "",
     phoneNumber: "",
+    amountPunto: "",
     exchangeAmount: "",
   });
+  const [isPaymentReady, setIsPaymentReady] = useState(false);
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
@@ -34,6 +38,17 @@ const PayOrderMain = ({
     fetchExchangeRate();
   }, []);
 
+  useEffect(() => {
+    const hasPagoMovil =
+      paymentDetails.referenceNumber &&
+      paymentDetails.amountPagoMovil &&
+      paymentDetails.phoneNumber.length >= 11;
+
+    const hasPagoPunto = paymentDetails.amountPunto;
+    const hasDivisas = paymentDetails.exchangeAmount;
+    setIsPaymentReady(!!(hasPagoMovil || hasPagoPunto || hasDivisas));
+  }, [paymentDetails]);
+
   const totalUSD = selectedExams.reduce(
     (total, exam) => total + Number(exam.exam_price || 0),
     0
@@ -42,16 +57,10 @@ const PayOrderMain = ({
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
+    const numericValue = value.replace(/[^0-9.]/g, "");
     setPaymentDetails((prevDetails) => ({
       ...prevDetails,
-      [name]: value,
-    }));
-  };
-
-  const handleFileChange = (e: any) => {
-    setPaymentDetails((prevDetails) => ({
-      ...prevDetails,
-      paymentImage: e.target.files[0],
+      [name]: numericValue,
     }));
   };
 
@@ -61,8 +70,23 @@ const PayOrderMain = ({
   };
 
   const handleProcessPayment = () => {
-    // Aquí puedes añadir la lógica para procesar el pago
-    console.log("Procesando pago con detalles:", paymentDetails);
+    console.log("📦 Detalles del Pago:");
+    console.log(paymentDetails);
+
+    console.log("🧪 Exámenes Seleccionados:");
+    console.log(selectedExams);
+
+    console.log("💱 Tasa de cambio actual (USD → Bs):", exchangeRate);
+
+    const totalUSD = selectedExams.reduce(
+      (total, exam) => total + Number(exam.exam_price || 0),
+      0
+    );
+    const totalBs = exchangeRate ? totalUSD * exchangeRate : 0;
+
+    console.log(
+      `💵 Total a pagar: $${totalUSD.toFixed(2)} USD / Bs ${totalBs.toFixed(2)}`
+    );
   };
 
   return (
@@ -71,7 +95,7 @@ const PayOrderMain = ({
       <div className="blog-area pt-105 pb-70">
         <div className="container">
           <div className="row">
-            <div className="col-xl-8 col-lg-8 mb-30">
+            <div className="col-12 mb-4">
               <h3>Exámenes Seleccionados</h3>
               {selectedExams.length > 0 ? (
                 selectedExams.map((exam) => (
@@ -107,130 +131,110 @@ const PayOrderMain = ({
               ) : (
                 <p>No hay exámenes seleccionados.</p>
               )}
+            </div>
 
-              {/* Centrar los botones */}
-              <div className="button-wrapper2 d-flex justify-content-center mt-4">
+            <div className="col-12 mb-4">
+              <div className="card payment-card text-center">
+                <h4>Total:</h4>
+                <p className="mb-1">
+                  <span
+                    className="total-usd"
+                    style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                  >
+                    ${totalUSD.toFixed(2)} USD
+                  </span>
+                </p>
+                <p className="mb-0">
+                  <span className="total-bs" style={{ fontSize: "1.2rem" }}>
+                    {totalBs.toFixed(2)} Bs
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="col-12">
+              <div className="d-flex flex-wrap gap-3 justify-content-between">
+                <div className="card payment-card shadow">
+                  <h4>Pago Móvil</h4>
+                  <div className="form-group">
+                    <label>Nro de Referencia</label>
+                    <input
+                      type="number"
+                      name="referenceNumber"
+                      value={paymentDetails.referenceNumber}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Monto</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="amountPagoMovil"
+                      value={paymentDetails.amountPagoMovil}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Nro de Teléfono</label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={paymentDetails.phoneNumber}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="card payment-card shadow">
+                  <h4>Pago por Punto</h4>
+                  <div className="form-group">
+                    <label>Monto</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="amountPunto"
+                      value={paymentDetails.amountPunto}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="card payment-card shadow">
+                  <h4>Pago en Divisas</h4>
+                  <div className="form-group">
+                    <label>Cantidad en $</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="exchangeAmount"
+                      value={paymentDetails.exchangeAmount}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="d-flex flex-wrap justify-content-between gap-2 mt-4">
                 <button
                   onClick={handleGoBack}
-                  className="button2 equal-button back-button2 mr-3"
+                  className="button2 equal-button back-button2"
+                  style={{ flex: "1 1 45%", minWidth: "140px" }}
                 >
                   Regresar
                 </button>
                 <button
                   onClick={handleProcessPayment}
+                  disabled={!isPaymentReady}
                   className="button2 equal-button process-payment-button2"
+                  style={{
+                    flex: "1 1 45%",
+                    minWidth: "140px",
+                    opacity: isPaymentReady ? 1 : 0.5,
+                  }}
                 >
                   Procesar Pago
                 </button>
-              </div>
-            </div>
-
-            {/* Tarjetas de opciones de pago */}
-            <div className="col-xl-4 col-lg-4 mb-30">
-              <div
-                className="card total-wrapper"
-                style={{
-                  padding: "20px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                  borderRadius: "8px",
-                }}
-              >
-                <h4>Total:</h4>
-                <p>
-                  <span className="total-usd">${totalUSD.toFixed(2)} USD</span>{" "}
-                  / <span className="total-bs">{totalBs.toFixed(2)} Bs</span>
-                </p>
-              </div>
-
-              {/* Opción Pago Móvil */}
-              <div
-                className="card payment-option"
-                style={{
-                  marginTop: "20px",
-                  padding: "20px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                  borderRadius: "8px",
-                }}
-              >
-                <h4>Pago Móvil</h4>
-                <div className="form-group">
-                  <label>Nro de Referencia</label>
-                  <input
-                    type="number"
-                    name="referenceNumber"
-                    value={paymentDetails.referenceNumber}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                {/*<div className="form-group">
-                  <label>Imagen del Pago</label>
-                  <input type="file" onChange={handleFileChange} />
-                </div>*/}
-                <div className="form-group">
-                  <label>Monto</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name="amount"
-                    value={paymentDetails.amount}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Nro de Teléfono</label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={paymentDetails.phoneNumber}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              {/* Opción Pago por Punto */}
-              <div
-                className="card payment-option"
-                style={{
-                  marginTop: "20px",
-                  padding: "20px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                  borderRadius: "8px",
-                }}
-              >
-                <h4>Pago por Punto</h4>
-                <div className="form-group">
-                  <label>Monto</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name="amount"
-                    value={paymentDetails.amount}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              {/* Opción Pago en Divisas */}
-              <div
-                className="card payment-option"
-                style={{
-                  marginTop: "20px",
-                  padding: "20px",
-                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-                  borderRadius: "8px",
-                }}
-              >
-                <h4>Pago en Divisas</h4>
-                <div className="form-group">
-                  <label>Cantidad en $</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name="exchangeAmount"
-                    value={paymentDetails.exchangeAmount}
-                    onChange={handleInputChange}
-                  />
-                </div>
               </div>
             </div>
           </div>
