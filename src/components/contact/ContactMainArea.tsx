@@ -23,7 +23,7 @@ const ContactMainArea = () => {
         <>
             <Breadcrumb title='Contáctanos' subTitle='contáctanos' />
             <ContactArea /*laboratory={laboratory}*/ /> {/* Pasamos laboratory como una prop */}
-            <ContactMap /*laboratory={laboratory}*/ />
+            <ContactMap laboratory={laboratory} />
             <ContactFormArea />
             {/*<InstragramArea />*/}
         </>

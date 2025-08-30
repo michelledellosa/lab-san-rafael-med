@@ -1,3 +1,5 @@
+/* PayOrderMain.tsx */
+
 "use client";
 import "./PayOrderMain.css";
 import React, { useEffect, useState } from "react";
@@ -17,10 +19,11 @@ const PayOrderMain = ({
   const [paymentDetails, setPaymentDetails] = useState({
     referenceNumber: "",
     paymentImage: null,
-    amountMovil: "",
-    amountPunto: "",
+    amount: "",
+    phoneNumber: "",
     exchangeAmount: "",
   });
+  const [isPaymentReady, setIsPaymentReady] = useState(false);
 
   useEffect(() => {
     const fetchExchangeRate = async () => {
@@ -34,6 +37,17 @@ const PayOrderMain = ({
     fetchExchangeRate();
   }, []);
 
+  useEffect(() => {
+    const hasPagoMovil =
+      paymentDetails.referenceNumber &&
+      paymentDetails.amountPagoMovil &&
+      paymentDetails.phoneNumber.length >= 11;
+
+    const hasPagoPunto = paymentDetails.amountPunto;
+    const hasDivisas = paymentDetails.exchangeAmount;
+    setIsPaymentReady(!!(hasPagoMovil || hasPagoPunto || hasDivisas));
+  }, [paymentDetails]);
+
   const totalUSD = selectedExams.reduce(
     (total, exam) => total + Number(exam.exam_price || 0),
     0
@@ -42,16 +56,10 @@ const PayOrderMain = ({
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
+    const numericValue = value.replace(/[^0-9.]/g, "");
     setPaymentDetails((prevDetails) => ({
       ...prevDetails,
-      [name]: value,
-    }));
-  };
-
-  const handleFileChange = (e: any) => {
-    setPaymentDetails((prevDetails) => ({
-      ...prevDetails,
-      paymentImage: e.target.files[0],
+      [name]: numericValue,
     }));
   };
 
@@ -60,75 +68,10 @@ const PayOrderMain = ({
     router.push(`/services?exams=${examsQuery}`);
   };
 
-  const handleProcessPayment = async () => {
+  const handleProcessPayment = () => {
+    // Aquí puedes añadir la lógica para procesar el pago
     console.log("Procesando pago con detalles:", paymentDetails);
-    console.log("Exámenes seleccionados:", selectedExams);
-
-    const examsPayload = selectedExams.map((exam) => ({
-      id: String(exam.exam_id),
-    }));
-
-    const paymentPayload: any = {
-      total: Number((exchangeRate ? totalUSD * exchangeRate : totalUSD).toFixed(2)),
-    };
-    
-    if (paymentDetails.amountMovil) {
-      paymentPayload.depositBs = Number(paymentDetails.amountMovil);
-      paymentPayload.depositRef = Number(paymentDetails.referenceNumber);
-    } else if (paymentDetails.amountPunto) {
-      paymentPayload.depositBs = Number(paymentDetails.amountPunto);
-    }
-    
-    if (paymentDetails.exchangeAmount) {
-      paymentPayload.dolar = Number(paymentDetails.exchangeAmount);
-    }
-    
-
-
-    const payload = {
-      idCustomer: 1,
-      exams: examsPayload,
-      payment: paymentPayload,
-    };
-
-    console.log("Enviando payload:", payload);
-
-    try {
-      const response = await fetch("https://lab-san-rafael-api.onrender.com/orders/new/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Respuesta del servidor:", data);
-      alert("¡Pago procesado con éxito!");
-    } catch (error) {
-      console.error("Error al procesar el pago:", error);
-      alert("Ocurrió un error al procesar el pago.");
-    }
   };
-
-  // ✅ Validaciones actualizadas
-  const isPagoMovilFilled =
-    paymentDetails.referenceNumber || paymentDetails.amountMovil;
-
-  const isPagoMovilComplete =
-    paymentDetails.referenceNumber && paymentDetails.amountMovil;
-
-  const isPagoPuntoFilled = paymentDetails.amountPunto && !isPagoMovilFilled;
-  const isPagoDivisasFilled = paymentDetails.exchangeAmount;
-
-  const isAnyPaymentMethodValid =
-    (isPagoMovilFilled && isPagoMovilComplete) ||
-    isPagoPuntoFilled ||
-    isPagoDivisasFilled;
 
   return (
     <>
@@ -137,8 +80,7 @@ const PayOrderMain = ({
         <div className="container">
           {/* ROW PRINCIPAL */}
           <div className="row">
-            {/* Columna izquierda - Exámenes */}
-            <div className="col-lg-8 col-12">
+            <div className="col-xl-8 col-lg-8 mb-30">
               <h3>Exámenes Seleccionados</h3>
               {selectedExams.length > 0 ? (
                 selectedExams.map((exam) => (
@@ -176,8 +118,8 @@ const PayOrderMain = ({
               )}
             </div>
 
-            {/* Columna derecha - Total */}
-            <div className="col-lg-4 col-12 mt-4 mt-lg-0">
+            {/* Tarjetas de opciones de pago */}
+            <div className="col-xl-4 col-lg-4 mb-30">
               <div
                 className="card total-wrapper"
                 style={{
@@ -187,19 +129,31 @@ const PayOrderMain = ({
                 }}
               >
                 <h4>Total:</h4>
-                <p>
-                  <span className="total-usd">${totalUSD.toFixed(2)} USD</span>{" "}
-                  / <span className="total-bs">{totalBs.toFixed(2)} Bs</span>
+                <p className="mb-1">
+                  <span
+                    className="total-usd"
+                    style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+                  >
+                    ${totalUSD.toFixed(2)} USD
+                  </span>
+                </p>
+                <p className="mb-0">
+                  <span className="total-bs" style={{ fontSize: "1.2rem" }}>
+                    {totalBs.toFixed(2)} Bs
+                  </span>
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* ROW APARTE – Métodos de Pago (100% ancho) */}
-          <div className="row mt-4">
-            {/* Pago Móvil */}
-            <div className="col-lg-4 col-md-6 col-12 mb-4">
-              <div className="card payment-option h-100 p-4">
+              {/* Opción Pago Móvil */}
+              <div
+                className="card payment-option"
+                style={{
+                  marginTop: "20px",
+                  padding: "20px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                  borderRadius: "8px",
+                }}
+              >
                 <h4>Pago Móvil</h4>
                 <div className="form-group">
                   <label>Nro de Referencia</label>
@@ -210,39 +164,64 @@ const PayOrderMain = ({
                     onChange={handleInputChange}
                   />
                 </div>
+                {/*<div className="form-group">
+                  <label>Imagen del Pago</label>
+                  <input type="file" onChange={handleFileChange} />
+                </div>*/}
                 <div className="form-group">
                   <label>Monto</label>
                   <input
                     type="number"
                     step="0.01"
-                    name="amountMovil"
-                    value={paymentDetails.amountMovil}
+                    name="amount"
+                    value={paymentDetails.amount}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Nro de Teléfono</label>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={paymentDetails.phoneNumber}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Pago por Punto */}
-            <div className="col-lg-4 col-md-6 col-12 mb-4">
-              <div className="card payment-option h-100 p-4">
+              {/* Opción Pago por Punto */}
+              <div
+                className="card payment-option"
+                style={{
+                  marginTop: "20px",
+                  padding: "20px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                  borderRadius: "8px",
+                }}
+              >
                 <h4>Pago por Punto</h4>
                 <div className="form-group">
                   <label>Monto</label>
                   <input
                     type="number"
                     step="0.01"
-                    name="amountPunto"
-                    value={paymentDetails.amountPunto}
+                    name="amount"
+                    value={paymentDetails.amount}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Pago en Divisas */}
-            <div className="col-lg-4 col-md-6 col-12 mb-4">
-              <div className="card payment-option h-100 p-4">
+              {/* Opción Pago en Divisas */}
+              <div
+                className="card payment-option"
+                style={{
+                  marginTop: "20px",
+                  padding: "20px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+                  borderRadius: "8px",
+                }}
+              >
                 <h4>Pago en Divisas</h4>
                 <div className="form-group">
                   <label>Cantidad en $</label>
